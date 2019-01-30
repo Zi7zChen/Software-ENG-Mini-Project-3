@@ -11,13 +11,31 @@ var fs = require('fs'),
 
 /* Connect to your database */
 
+mongoose.Promise = global.Promise;
+mongoose.connect(config.db.uri);
+
 /* 
   Instantiate a mongoose model for each listing object in the JSON file, 
   and then save it to your Mongo database 
  */
 
-
+ fs.readFile('listings.json','utf8', function(err,listings){
+	if(err) throw err;
+	
+	var data = JSON.parse(listings);
+	for(var i=0; i<data.entries.length; i++){
+		var listingEntry = new Listing(data.entries[i]);	
+		listingEntry.save(function(err){
+			if (err) throw err;
+		});
+	 };
+ });
+ 
 /* 
   Once you've written + run the script, check out your MongoLab database to ensure that 
   it saved everything correctly. 
  */
+ 
+ setTimeout(function(){
+    mongoose.disconnect();
+},2000);
